@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Audit Trail Logs - Forensic Management{% endblock %}
+{% block page_title %}Immutable System Audit Trail{% endblock %}
+
+{% block content %}
+<div class="cyber-card">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-clock-rotate-left" style="color:#a855f7;"></i>
+            Cryptographic Activity & Access Log Stream
+        </h2>
+        <span style="font-size:0.8rem; color:var(--text-dim);">Tamper-evident system activity record</span>
+    </div>
+
+    <!-- Filter by Action -->
+    <div style="margin-bottom:1.25rem;">
+        <form method="GET" style="display:flex; gap:0.75rem; max-width:400px;">
+            <input type="text" name="action" value="{{ action_filter|default:'' }}" class="form-control" placeholder="Filter by action (e.g. LOGIN, UPLOAD, VERIFY)...">
+            <button type="submit" class="btn btn-secondary"><i class="fa-solid fa-filter"></i></button>
+            {% if action_filter %}
+                <a href="{% url 'admin_audit_logs' %}" class="btn btn-secondary">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Evidence Code</th>
+                    <th>IP Address</th>
+                    <th>Detailed Log Context</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td style="white-space:nowrap; font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim);">
+                            {{ log.timestamp|date:"Y-m-d H:i:s" }}
+                        </td>
+                        <td>
+                            <strong style="color:#fff;">{{ log.user.username|default:"System" }}</strong>
+                        </td>
+                        <td>
+                            <span class="user-role-badge {% if 'VERIF' in log.action or 'UPLOAD' in log.action %}badge-admin{% else %}badge-user{% endif %}">
+                                {{ log.action }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if log.evidence %}
+                                <strong style="font-family:var(--font-mono); color:#38bdf8;">{{ log.evidence.evidence_code }}</strong>
+                            {% else %}
+                                <span style="color:var(--text-dim);">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim);">
+                            {{ log.ip_address|default:"127.0.0.1" }}
+                        </td>
+                        <td style="color:var(--text-main); font-size:0.85rem;">
+                            {{ log.details }}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding:2rem; color:var(--text-dim);">
+                            No audit log records found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

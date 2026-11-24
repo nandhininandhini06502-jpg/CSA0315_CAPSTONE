@@ -1,0 +1,152 @@
+/* ==========================================================
+   DIGITAL EVIDENCE MANAGEMENT SYSTEM - Authentication Styles
+   Theme: High-Tech Cyber Forensic Login Portal
+   ========================================================== */
+
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Glowing Ambient Orb Effects */
+.auth-glow-orb {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    opacity: 0.25;
+}
+
+.orb-1 {
+    top: -100px;
+    left: -100px;
+    background: radial-gradient(circle, #2563eb, transparent 70%);
+}
+
+.orb-2 {
+    bottom: -100px;
+    right: -100px;
+    background: radial-gradient(circle, #06b6d4, transparent 70%);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(17, 24, 39, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2.5rem 2.25rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.1);
+    backdrop-filter: blur(16px);
+    position: relative;
+    z-index: 10;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-logo-badge {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 1.25rem;
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.8rem;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #fff;
+    margin-bottom: 0.35rem;
+}
+
+.auth-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-icon-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+.input-with-icon {
+    padding-left: 2.85rem !important;
+}
+
+.form-control:focus + .input-icon,
+.input-with-icon:focus ~ .input-icon {
+    color: var(--cyan);
+}
+
+.auth-footer {
+    margin-top: 1.75rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.auth-footer a {
+    color: #38bdf8;
+    text-decoration: none;
+    font-weight: 600;
+    transition: text-shadow 0.2s;
+}
+
+.auth-footer a:hover {
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+    text-decoration: underline;
+}
+
+.role-badge-preview {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.role-card-select {
+    flex: 1;
+    padding: 0.85rem;
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.role-card-select:hover, .role-card-select.selected {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+}

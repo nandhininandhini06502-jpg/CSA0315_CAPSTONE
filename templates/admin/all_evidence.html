@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Evidence - Forensic Repository{% endblock %}
+{% block page_title %}Digital Evidence Master Repository{% endblock %}
+
+{% block content %}
+<!-- Search & Filters Toolbar -->
+<div class="cyber-card" style="margin-bottom: 1.5rem; padding: 1.25rem 1.5rem;">
+    <form method="GET" action="{% url 'admin_all_evidence' %}" style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
+        <div style="flex:2; min-width:240px;">
+            <label class="form-label"><i class="fa-solid fa-magnifying-glass"></i> Search Term / ID</label>
+            <input type="text" name="q" value="{{ search_q|default:'' }}" class="form-control" placeholder="Search by ID (e.g. E101) or Title...">
+        </div>
+
+        <div style="flex:1; min-width:180px;">
+            <label class="form-label"><i class="fa-solid fa-tags"></i> Category</label>
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                    <option value="{{ c.category_id }}" {% if current_category == c.category_id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.category_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="flex:1; min-width:160px;">
+            <label class="form-label"><i class="fa-solid fa-filter"></i> Status</label>
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="Pending" {% if current_status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Verified" {% if current_status == 'Verified' %}selected{% endif %}>Verified</option>
+                <option value="Rejected" {% if current_status == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-primary" style="padding:0.75rem 1.25rem;">
+                <i class="fa-solid fa-filter"></i> Filter
+            </button>
+            <a href="{% url 'admin_all_evidence' %}" class="btn btn-secondary" style="padding:0.75rem 1rem;">
+                Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Evidence Table -->
+<div class="cyber-card">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-database" style="color:#38bdf8;"></i>
+            Digital Evidence Records ({{ evidences|length }} found)
+        </h2>
+        <a href="{% url 'user_upload_evidence' %}" class="btn btn-primary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+            <i class="fa-solid fa-plus"></i> Upload New
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Evidence Title & Details</th>
+                    <th>Category</th>
+                    <th>Investigator</th>
+                    <th>Upload Date</th>
+                    <th>SHA-256 Cryptographic Hash</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in evidences %}
+                    <tr>
+                        <td>
+                            <strong style="font-family:var(--font-mono); color:#38bdf8; font-size:0.95rem;">
+                                {{ ev.evidence_code }}
+                            </strong>
+                        </td>
+                        <td>
+                            <div style="font-weight:600; color:#fff;">{{ ev.title }}</div>
+                            <small style="color:var(--text-dim);">
+                                {{ ev.formatted_size }} &bull; {{ ev.file_type|default:"file" }}
+                            </small>
+                        </td>
+                        <td>
+                            <span style="font-size:0.8rem;">
+                                <i class="fa-solid {{ ev.category.icon|default:'fa-folder' }}" style="color:#60a5fa; margin-right:4px;"></i>
+                                {{ ev.category.category_name|default:"General" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="font-weight:500;">{{ ev.user.username }}</div>
+                            <small style="color:var(--text-dim);">{{ ev.user.department|default:"Forensics" }}</small>
+                        </td>
+                        <td>{{ ev.upload_date|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span class="hash-pill" title="{{ ev.file_hash }}">
+                                {{ ev.file_hash|slice:":18" }}...
+                                <button type="button" class="copy-btn" onclick="copyHash('{{ ev.file_hash }}', this)" title="Copy SHA-256">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </span>
+                        </td>
+                        <td>
+                            {% if ev.status == 'Verified' %}
+                                <span class="status-pill status-verified"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                            {% elif ev.status == 'Pending' %}
+                                <span class="status-pill status-pending"><i class="fa-solid fa-clock"></i> Pending</span>
+                            {% else %}
+                                <span class="status-pill status-rejected"><i class="fa-solid fa-triangle-exclamation"></i> Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-action-group">
+                                <a href="{% url 'evidence_details' ev.evidence_id %}" class="btn-icon" title="View Full Details">
+                                    <i class="fa-regular fa-eye"></i>
+                                </a>
+                                <a href="{% url 'admin_verify_evidence' ev.evidence_id %}" class="btn-icon verify" title="Verify Integrity">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </a>
+                                <a href="{% url 'evidence_download' ev.evidence_id %}" class="btn-icon" title="Download Evidence File">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-dim);">
+                            <i class="fa-solid fa-folder-open" style="font-size:2.5rem; margin-bottom:1rem; color:#4b5563;"></i>
+                            <p>No digital evidence found matching the criteria.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

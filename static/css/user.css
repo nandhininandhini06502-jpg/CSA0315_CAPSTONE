@@ -1,0 +1,107 @@
+/* ==========================================================
+   DIGITAL EVIDENCE MANAGEMENT SYSTEM - User Stylesheet
+   ========================================================== */
+
+/* File Upload Drop Zone */
+.upload-dropzone {
+    border: 2px dashed rgba(56, 189, 248, 0.4);
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 14px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #38bdf8;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.upload-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.upload-hint {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.file-preview-card {
+    display: none;
+    margin-top: 1.25rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    align-items: center;
+    gap: 1rem;
+}
+
+.file-preview-card.active {
+    display: flex;
+}
+
+.preview-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #1f2937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: var(--cyan);
+}
+
+/* Algorithm Hub Styles */
+.algo-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c084fc;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.tree-node-visual {
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    display: inline-block;
+    margin: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+}
+
+.queue-node-visual {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0, 0, 0, 0.4);
+    border-left: 3px solid #f59e0b;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}

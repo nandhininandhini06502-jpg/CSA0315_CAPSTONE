@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload History - Custody Activity{% endblock %}
+{% block page_title %}Chronological Evidence Submission History{% endblock %}
+
+{% block content %}
+<div class="cyber-card" style="margin-bottom:1.5rem;">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-list-check" style="color:#38bdf8;"></i>
+            My Upload Records & Cryptographic History
+        </h2>
+        <span style="font-size:0.8rem; color:var(--text-dim);">Total Ingested: {{ evidences|length }}</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Evidence Title</th>
+                    <th>Category</th>
+                    <th>File Format & Size</th>
+                    <th>Upload Timestamp</th>
+                    <th>SHA-256 Checksum</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in evidences %}
+                    <tr>
+                        <td>
+                            <strong style="font-family:var(--font-mono); color:#38bdf8;">{{ ev.evidence_code }}</strong>
+                        </td>
+                        <td>
+                            <a href="{% url 'evidence_details' ev.evidence_id %}" style="color:#fff; font-weight:600; text-decoration:none;">
+                                {{ ev.title }}
+                            </a>
+                        </td>
+                        <td>{{ ev.category.category_name|default:"General" }}</td>
+                        <td>{{ ev.file_type|default:"Artifact" }} ({{ ev.formatted_size }})</td>
+                        <td>{{ ev.upload_date|date:"Y-m-d H:i:s" }}</td>
+                        <td>
+                            <span class="hash-pill" title="{{ ev.file_hash }}">
+                                {{ ev.file_hash|slice:":16" }}...
+                                <button type="button" class="copy-btn" onclick="copyHash('{{ ev.file_hash }}', this)">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </span>
+                        </td>
+                        <td>
+                            {% if ev.status == 'Verified' %}
+                                <span class="status-pill status-verified">Verified</span>
+                            {% elif ev.status == 'Pending' %}
+                                <span class="status-pill status-pending">Pending</span>
+                            {% else %}
+                                <span class="status-pill status-rejected">Rejected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:2rem; color:var(--text-dim);">No submission history found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- My Access History -->
+<div class="cyber-card">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-clock-rotate-left" style="color:#a855f7;"></i>
+            My Access & Download Audit Log
+        </h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Evidence Code</th>
+                    <th>Action</th>
+                    <th>Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for acc in accesses %}
+                    <tr>
+                        <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim);">{{ acc.access_date|date:"Y-m-d H:i:s" }}</td>
+                        <td><strong style="color:#38bdf8;">{{ acc.evidence.evidence_code }}</strong></td>
+                        <td>
+                            <span class="user-role-badge {% if acc.action == 'DOWNLOAD' %}badge-admin{% else %}badge-user{% endif %}">
+                                {{ acc.action }}
+                            </span>
+                        </td>
+                        <td>{{ acc.evidence.title }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" style="text-align:center; color:var(--text-dim);">No recorded access logs.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

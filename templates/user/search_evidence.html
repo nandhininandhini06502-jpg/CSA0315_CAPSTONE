@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Digital Evidence - Data Structure Retrieval{% endblock %}
+{% block page_title %}Intelligent Evidence Organization & Retrieval{% endblock %}
+
+{% block content %}
+<!-- Search Form Card -->
+<div class="cyber-card" style="margin-bottom: 1.5rem;">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-magnifying-glass" style="color:#38bdf8;"></i>
+            Search Digital Evidence
+        </h2>
+        <span class="algo-badge" id="algoTypeBadge">C Algorithm Search Engine</span>
+    </div>
+
+    <form method="GET" action="{% url 'evidence_search' %}">
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap:1rem; align-items:flex-end;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Search Query (ID / Title / Code)</label>
+                {{ form.query }}
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Category</label>
+                {{ form.category }}
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Status</label>
+                {{ form.status }}
+            </div>
+
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Retrieval Algorithm (C)</label>
+                {{ form.algorithm }}
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.25rem;">
+            <small style="color:var(--text-dim);">
+                <i class="fa-solid fa-lightbulb" style="color:#fbbf24;"></i> Tip: Enter '101' or 'E101' for O(1) Hash Table or Binary Search test.
+            </small>
+            <div style="display:flex; gap:0.5rem;">
+                <button type="submit" class="btn btn-primary" style="padding:0.65rem 1.4rem;">
+                    <i class="fa-solid fa-bolt"></i> Execute Search
+                </button>
+                <a href="{% url 'evidence_search' %}" class="btn btn-secondary" style="padding:0.65rem 1rem;">
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- C Algorithm Performance Telemetry Banner -->
+{% if algorithm_info %}
+    <div class="cyber-card" style="margin-bottom: 1.5rem; background:rgba(139, 92, 246, 0.1); border-color:rgba(139, 92, 246, 0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div style="display:flex; align-items:center; gap:0.85rem;">
+                <div style="width:40px; height:40px; border-radius:10px; background:rgba(139, 92, 246, 0.25); display:flex; align-items:center; justify-content:center; color:#c084fc; font-size:1.2rem;">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700; color:#fff; font-size:0.95rem;">
+                        {{ algorithm_info.algorithm }} 
+                        <span style="font-size:0.75rem; color:#a855f7; font-weight:normal; margin-left:6px;">
+                            ({{ algorithm_info.execution_mode|default:"C Native Binary Subprocess" }})
+                        </span>
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-mono);">
+                        {% if algorithm_info.search %}
+                            Target: "{{ algorithm_info.search.target }}" &bull; Bucket: {{ algorithm_info.search.bucket }} &bull; Comparisons: {{ algorithm_info.search.comparisons }} &bull; Found: {{ algorithm_info.search.found }}
+                        {% elif algorithm_info.comparisons %}
+                            Comparisons / Iterations: {{ algorithm_info.comparisons }} &bull; Query: "{{ algorithm_info.query }}" &bull; Result Match: {{ algorithm_info.found }}
+                        {% else %}
+                            Tree Traversal Depth: {{ algorithm_info.tree_height|default:"1" }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <span class="status-pill status-verified" style="font-family:var(--font-mono);">
+                <i class="fa-solid fa-gauge-high"></i> Low Latency O(log n) / O(1)
+            </span>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Search Results Table -->
+<div class="cyber-card">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-list-check" style="color:#10b981;"></i>
+            Retrieved Evidence Results ({{ results|length }} found)
+        </h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Evidence Title</th>
+                    <th>Category</th>
+                    <th>Investigator</th>
+                    <th>Upload Date</th>
+                    <th>SHA-256 Digest</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in results %}
+                    <tr>
+                        <td>
+                            <strong style="font-family:var(--font-mono); color:#38bdf8;">{{ ev.evidence_code }}</strong>
+                        </td>
+                        <td>
+                            <div style="font-weight:600; color:#fff;">{{ ev.title }}</div>
+                            <small style="color:var(--text-dim);">{{ ev.formatted_size }}</small>
+                        </td>
+                        <td>
+                            <i class="fa-solid {{ ev.category.icon|default:'fa-folder' }}" style="color:#60a5fa; margin-right:4px;"></i>
+                            {{ ev.category.category_name|default:"General" }}
+                        </td>
+                        <td>{{ ev.user.username }}</td>
+                        <td>{{ ev.upload_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="hash-pill" title="{{ ev.file_hash }}">
+                                {{ ev.file_hash|slice:":16" }}...
+                                <button type="button" class="copy-btn" onclick="copyHash('{{ ev.file_hash }}', this)">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </span>
+                        </td>
+                        <td>
+                            {% if ev.status == 'Verified' %}
+                                <span class="status-pill status-verified"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                            {% elif ev.status == 'Pending' %}
+                                <span class="status-pill status-pending"><i class="fa-solid fa-clock"></i> Pending</span>
+                            {% else %}
+                                <span class="status-pill status-rejected"><i class="fa-solid fa-triangle-exclamation"></i> Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-action-group">
+                                <a href="{% url 'evidence_details' ev.evidence_id %}" class="btn-icon" title="View Details">
+                                    <i class="fa-regular fa-eye"></i>
+                                </a>
+                                <a href="{% url 'evidence_download' ev.evidence_id %}" class="btn-icon" title="Download File">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-dim);">
+                            <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; margin-bottom:0.75rem; color:#4b5563;"></i>
+                            <p>No evidence matches your search query.</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/search.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Profile & Security - Digital Evidence{% endblock %}
+{% block page_title %}Personnel Profile & Security Settings{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: 1fr 2fr; gap:1.5rem;">
+    <!-- Profile Summary Card -->
+    <div class="cyber-card">
+        <div style="text-align:center; padding:1.5rem 0;">
+            <div style="width:84px; height:84px; border-radius:50%; background:linear-gradient(135deg, #2563eb, #06b6d4); display:flex; align-items:center; justify-content:center; color:#fff; font-size:2.2rem; font-weight:800; margin:0 auto 1rem; box-shadow:0 0 25px rgba(6,182,212,0.4);">
+                {{ user.username|first|upper }}
+            </div>
+            <h2 style="font-size:1.3rem; font-weight:700; color:#fff;">{{ user.get_full_name|default:user.username }}</h2>
+            <div style="margin-top:0.4rem;">
+                <span class="user-role-badge {% if user.is_admin %}badge-admin{% else %}badge-user{% endif %}">
+                    {{ user.get_role_display }}
+                </span>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-dim); margin-top:0.75rem;">
+                <i class="fa-solid fa-building"></i> {{ user.department|default:"Forensics Unit" }}
+            </p>
+            <p style="font-size:0.85rem; color:var(--text-dim);">
+                <i class="fa-solid fa-id-badge"></i> Badge: {{ user.badge_id|default:"N/A" }}
+            </p>
+        </div>
+
+        <div style="border-top:1px solid var(--border-color); padding-top:1.25rem; display:flex; justify-content:space-around; text-align:center;">
+            <div>
+                <div style="font-size:1.4rem; font-weight:800; color:#38bdf8;">{{ upload_count }}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim);">Submissions</div>
+            </div>
+            <div>
+                <div style="font-size:1.4rem; font-weight:800; color:#10b981;">{{ verified_count }}</div>
+                <div style="font-size:0.75rem; color:var(--text-dim);">Verified</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile & Change Password Tabs -->
+    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        <!-- Edit Profile Details Form -->
+        <div class="cyber-card">
+            <div class="card-header-styled">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-user-pen" style="color:#38bdf8;"></i>
+                    Update Personal Information
+                </h3>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="update_profile" value="1">
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        {{ profile_form.first_name }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        {{ profile_form.last_name }}
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        {{ profile_form.email }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contact Phone</label>
+                        {{ profile_form.phone }}
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Department / Branch</label>
+                        {{ profile_form.department }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Investigator Badge ID</label>
+                        {{ profile_form.badge_id }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
+                </button>
+            </form>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="cyber-card">
+            <div class="card-header-styled">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-key" style="color:#fbbf24;"></i>
+                    Update Security Password
+                </h3>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="change_password" value="1">
+
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" name="old_password" class="form-control" required>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="new_password1" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" name="new_password2" class="form-control" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-secondary" style="border-color:#fbbf24; color:#fbbf24; margin-top:0.5rem;">
+                    <i class="fa-solid fa-lock"></i> Change Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

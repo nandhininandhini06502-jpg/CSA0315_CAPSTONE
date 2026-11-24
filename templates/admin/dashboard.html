@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Digital Evidence Management{% endblock %}
+{% block page_title %}Administrative Command Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat Cards Grid -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-value">{{ total_users }}</span>
+            <span class="stat-label">Registered Users</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fa-solid fa-database"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-value">{{ total_evidence }}</span>
+            <span class="stat-label">Total Evidence</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-value">{{ verified_evidence }}</span>
+            <span class="stat-label">Verified (Integrity OK)</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon amber">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-value">{{ pending_evidence }}</span>
+            <span class="stat-label">Pending Verification</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-value">{{ rejected_evidence }}</span>
+            <span class="stat-label">Rejected / Tampered</span>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Quick Navigation Ribbon -->
+<div class="cyber-card" style="margin-bottom: 1.5rem; padding: 1rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <span style="font-weight:600; font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">
+            <i class="fa-solid fa-compass" style="color:#38bdf8; margin-right:6px;"></i> Admin Control Hub:
+        </span>
+        <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            <a href="{% url 'admin_manage_users' %}" class="btn btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+                <i class="fa-solid fa-users-gear"></i> Manage Users
+            </a>
+            <a href="{% url 'admin_all_evidence' %}" class="btn btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+                <i class="fa-solid fa-folder-open"></i> All Evidence
+            </a>
+            <a href="{% url 'admin_categories' %}" class="btn btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+                <i class="fa-solid fa-tags"></i> Categories
+            </a>
+            <a href="{% url 'admin_reports' %}" class="btn btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+                <i class="fa-solid fa-chart-line"></i> Reports
+            </a>
+            <a href="{% url 'admin_audit_logs' %}" class="btn btn-secondary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+                <i class="fa-solid fa-shield-halved"></i> Audit Logs
+            </a>
+            <a href="{% url 'data_structures_hub' %}" class="btn btn-primary" style="padding:0.45rem 0.9rem; font-size:0.82rem; background:linear-gradient(135deg, #7c3aed, #2563eb);">
+                <i class="fa-solid fa-code"></i> C Algorithms Hub
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Two Columns Layout: Verification Queue + Category Analytics -->
+<div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Pending Verification Queue -->
+    <div class="cyber-card">
+        <div class="card-header-styled">
+            <h2 class="card-title">
+                <i class="fa-solid fa-layer-group" style="color:#fbbf24;"></i>
+                Pending Verification Queue (FIFO C Queue)
+            </h2>
+            <span class="algo-badge">Queue Algorithm</span>
+        </div>
+
+        {% if pending_queue_items %}
+            <div class="timeline-stream">
+                {% for item in pending_queue_items %}
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--border-color);">
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            <span style="font-family:var(--font-mono); font-size:0.85rem; font-weight:700; color:#38bdf8;">
+                                {{ item.evidence_code }}
+                            </span>
+                            <div>
+                                <div style="font-weight:600; font-size:0.88rem;">{{ item.title }}</div>
+                                <div style="font-size:0.75rem; color:var(--text-dim);">
+                                    By {{ item.user.username }} &bull; {{ item.upload_date|date:"M d, Y H:i" }}
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{% url 'admin_verify_evidence' item.evidence_id %}" class="btn btn-primary" style="padding:0.4rem 0.8rem; font-size:0.78rem;">
+                            <i class="fa-solid fa-shield-virus"></i> Verify Hash
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align:center; padding: 2rem; color:var(--text-dim);">
+                <i class="fa-solid fa-circle-check" style="font-size:2.5rem; color:#10b981; margin-bottom:0.75rem;"></i>
+                <p>All evidence items are verified! No pending requests in queue.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Category Breakdown Chart -->
+    <div class="cyber-card">
+        <div class="card-header-styled">
+            <h2 class="card-title">
+                <i class="fa-solid fa-chart-pie" style="color:#38bdf8;"></i>
+                Evidence Categories
+            </h2>
+        </div>
+        <div class="chart-card-wrapper" style="height:220px;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Evidence Uploads Table -->
+<div class="cyber-card" style="margin-bottom: 1.5rem;">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-file-shield" style="color:#38bdf8;"></i>
+            Recent Digital Evidence Records
+        </h2>
+        <a href="{% url 'admin_all_evidence' %}" style="font-size:0.82rem; color:#38bdf8; text-decoration:none;">
+            View All Evidence <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Uploader</th>
+                    <th>Date</th>
+                    <th>SHA-256 Hash</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in recent_evidence %}
+                    <tr>
+                        <td>
+                            <strong style="font-family:var(--font-mono); color:#38bdf8;">{{ ev.evidence_code }}</strong>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;">{{ ev.title }}</div>
+                            <small style="color:var(--text-dim);">{{ ev.formatted_size }}</small>
+                        </td>
+                        <td>
+                            <span style="font-size:0.8rem;">
+                                <i class="fa-solid {{ ev.category.icon|default:'fa-folder' }}" style="color:#60a5fa; margin-right:4px;"></i>
+                                {{ ev.category.category_name|default:"General" }}
+                            </span>
+                        </td>
+                        <td>{{ ev.user.username }}</td>
+                        <td>{{ ev.upload_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="hash-pill" title="{{ ev.file_hash }}">
+                                {{ ev.file_hash|slice:":16" }}...
+                                <button type="button" class="copy-btn" onclick="copyHash('{{ ev.file_hash }}', this)">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </span>
+                        </td>
+                        <td>
+                            {% if ev.status == 'Verified' %}
+                                <span class="status-pill status-verified"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                            {% elif ev.status == 'Pending' %}
+                                <span class="status-pill status-pending"><i class="fa-solid fa-clock"></i> Pending</span>
+                            {% else %}
+                                <span class="status-pill status-rejected"><i class="fa-solid fa-triangle-exclamation"></i> Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-action-group">
+                                <a href="{% url 'evidence_details' ev.evidence_id %}" class="btn-icon" title="View Details">
+                                    <i class="fa-regular fa-eye"></i>
+                                </a>
+                                <a href="{% url 'admin_verify_evidence' ev.evidence_id %}" class="btn-icon verify" title="Verify Integrity">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </a>
+                                <a href="{% url 'evidence_download' ev.evidence_id %}" class="btn-icon" title="Download File">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:2rem; color:var(--text-dim);">
+                            No evidence uploaded yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Activities Log Preview -->
+<div class="cyber-card">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-clock-rotate-left" style="color:#a855f7;"></i>
+            Recent System Activity Audit Stream
+        </h2>
+        <a href="{% url 'admin_audit_logs' %}" style="font-size:0.82rem; color:#38bdf8; text-decoration:none;">
+            Full Audit Logs <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="timeline-stream">
+        {% for log in recent_activities %}
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-title">
+                        <span style="color:#38bdf8; font-weight:700;">{{ log.action }}</span>: {{ log.details }}
+                    </div>
+                    <div class="timeline-time">
+                        <i class="fa-regular fa-clock"></i> {{ log.timestamp|date:"M d, Y H:i:s" }} &bull; IP: {{ log.ip_address|default:"127.0.0.1" }} &bull; User: {{ log.user.username|default:"System" }}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p style="color:var(--text-dim); text-align:center;">No activity records yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const catLabels = {{ cat_names|safe }};
+    const catData = {{ cat_counts|safe }};
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: catLabels.length ? catLabels : ['No categories'],
+            datasets: [{
+                data: catData.length ? catData : [1],
+                backgroundColor: [
+                    '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'
+                ],
+                borderColor: '#111827',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#9ca3af', boxWidth: 12, font: { size: 11 } }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

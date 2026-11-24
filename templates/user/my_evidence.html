@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Digital Evidence - Custody Records{% endblock %}
+{% block page_title %}My Uploaded Evidence Records{% endblock %}
+
+{% block content %}
+<div class="cyber-card">
+    <div class="card-header-styled">
+        <h2 class="card-title">
+            <i class="fa-solid fa-box-archive" style="color:#38bdf8;"></i>
+            My Custody Records ({{ evidences|length }} items)
+        </h2>
+        <a href="{% url 'user_upload_evidence' %}" class="btn btn-primary" style="padding:0.45rem 0.9rem; font-size:0.82rem;">
+            <i class="fa-solid fa-plus"></i> Upload Evidence
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="cyber-table">
+            <thead>
+                <tr>
+                    <th>Evidence ID</th>
+                    <th>Title & File Info</th>
+                    <th>Category</th>
+                    <th>Date Uploaded</th>
+                    <th>SHA-256 Digest</th>
+                    <th>Integrity Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ev in evidences %}
+                    <tr>
+                        <td>
+                            <strong style="font-family:var(--font-mono); color:#38bdf8; font-size:0.95rem;">
+                                {{ ev.evidence_code }}
+                            </strong>
+                        </td>
+                        <td>
+                            <div style="font-weight:600; color:#fff;">{{ ev.title }}</div>
+                            <small style="color:var(--text-dim);">
+                                {{ ev.formatted_size }} &bull; {{ ev.file_type|default:"file" }}
+                            </small>
+                        </td>
+                        <td>
+                            <i class="fa-solid {{ ev.category.icon|default:'fa-folder' }}" style="color:#60a5fa; margin-right:4px;"></i>
+                            {{ ev.category.category_name|default:"General" }}
+                        </td>
+                        <td>{{ ev.upload_date|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span class="hash-pill" title="{{ ev.file_hash }}">
+                                {{ ev.file_hash|slice:":18" }}...
+                                <button type="button" class="copy-btn" onclick="copyHash('{{ ev.file_hash }}', this)">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </span>
+                        </td>
+                        <td>
+                            {% if ev.status == 'Verified' %}
+                                <span class="status-pill status-verified"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                            {% elif ev.status == 'Pending' %}
+                                <span class="status-pill status-pending"><i class="fa-solid fa-clock"></i> Pending</span>
+                            {% else %}
+                                <span class="status-pill status-rejected"><i class="fa-solid fa-triangle-exclamation"></i> Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-action-group">
+                                <a href="{% url 'evidence_details' ev.evidence_id %}" class="btn-icon" title="View Details">
+                                    <i class="fa-regular fa-eye"></i>
+                                </a>
+                                <a href="{% url 'evidence_download' ev.evidence_id %}" class="btn-icon" title="Download File">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align:center; padding:3rem; color:var(--text-dim);">
+                            <i class="fa-solid fa-inbox" style="font-size:2rem; margin-bottom:0.75rem; color:#4b5563;"></i>
+                            <p>You have not uploaded any digital evidence yet.</p>
+                            <a href="{% url 'user_upload_evidence' %}" class="btn btn-primary" style="margin-top:1rem;">
+                                Upload Your First Evidence
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

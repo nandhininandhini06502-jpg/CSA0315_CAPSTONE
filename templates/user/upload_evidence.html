@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Digital Evidence - Forensics{% endblock %}
+{% block page_title %}Ingest New Digital Evidence{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <!-- Upload Form Card -->
+    <div class="cyber-card">
+        <div class="card-header-styled">
+            <h2 class="card-title">
+                <i class="fa-solid fa-cloud-arrow-up" style="color:#38bdf8;"></i>
+                Evidence Intake Form
+            </h2>
+            <span style="font-size:0.8rem; color:var(--text-dim);">Automated SHA-256 Hashing on Ingest</span>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="evidenceUploadForm">
+            {% csrf_token %}
+
+            <!-- Drag and Drop Box -->
+            <div class="upload-dropzone" id="uploadDropzone">
+                <div class="upload-icon">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                </div>
+                <div class="upload-title">Drag & Drop your evidence file here</div>
+                <div class="upload-hint">Supports Images (.jpg, .png), Audio (.mp3, .wav), Video (.mp4), Documents (.pdf, .docx), and Forensic Dumps (up to 100MB)</div>
+                <div style="margin-top:1rem;">
+                    <span class="btn btn-secondary" style="padding:0.4rem 0.9rem; font-size:0.8rem;">
+                        <i class="fa-regular fa-folder-open"></i> Browse Files
+                    </span>
+                </div>
+                <div style="display:none;">
+                    {{ form.file }}
+                </div>
+            </div>
+
+            <!-- Client-side File Selected Card Preview -->
+            <div class="file-preview-card" id="filePreviewCard">
+                <div class="preview-thumb">
+                    <i class="fa-solid fa-file-shield" id="previewIcon"></i>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:700; color:#fff;" id="previewFileName">filename.ext</div>
+                    <div style="font-size:0.8rem; color:#38bdf8;" id="previewFileSize">0 KB</div>
+                </div>
+                <span class="status-pill status-verified">Ready to hash</span>
+            </div>
+
+            {% if form.file.errors %}
+                <div style="color:#ef4444; font-size:0.85rem; margin-bottom:1rem;">
+                    {{ form.file.errors.0 }}
+                </div>
+            {% endif %}
+
+            <div class="form-group" style="margin-top:1.25rem;">
+                <label class="form-label">Evidence Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<small style="color:#ef4444;">{{ form.title.errors.0 }}</small>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Category *</label>
+                {{ form.category }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description & Chain of Custody Notes</label>
+                {{ form.description }}
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:0.95rem; margin-top:0.5rem;">
+                <i class="fa-solid fa-shield-virus"></i>
+                <span>Seal Evidence & Calculate SHA-256</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Forensic Security Guidelines Card -->
+    <div>
+        <div class="cyber-card" style="margin-bottom:1.5rem;">
+            <div class="card-header-styled">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-shield-halved" style="color:#10b981;"></i>
+                    Forensic Integrity Process
+                </h3>
+            </div>
+            
+            <div style="font-size:0.85rem; line-height:1.7; color:var(--text-muted);">
+                <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
+                    <div style="width:28px; height:28px; border-radius:50%; background:rgba(59,130,246,0.2); color:#60a5fa; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">1</div>
+                    <div>
+                        <strong style="color:#fff;">Stream File Read</strong>
+                        <p style="font-size:0.78rem;">File is read chunk-by-chunk in 64KB buffers into the cryptographic engine.</p>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.75rem; margin-bottom:1rem;">
+                    <div style="width:28px; height:28px; border-radius:50%; background:rgba(16,185,129,0.2); color:#34d399; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">2</div>
+                    <div>
+                        <strong style="color:#fff;">SHA-256 Digest Sealing</strong>
+                        <p style="font-size:0.78rem;">An immutable 64-character hexadecimal hash is stamped into the SQL database.</p>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.75rem;">
+                    <div style="width:28px; height:28px; border-radius:50%; background:rgba(245,158,11,0.2); color:#fbbf24; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">3</div>
+                    <div>
+                        <strong style="color:#fff;">Verification Queue Enqueue</strong>
+                        <p style="font-size:0.78rem;">Evidence is placed into the C FIFO Queue for administrative verification.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card">
+            <div class="card-header-styled">
+                <h3 class="card-title">
+                    <i class="fa-solid fa-code-commit" style="color:#c084fc;"></i>
+                    C Data Structure Link
+                </h3>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-dim); line-height:1.6;">
+                Once uploaded, this record will be dynamically inserted into the <strong>C Linked List</strong>, indexed in the <strong>C Hash Table</strong>, and organized in the <strong>Binary Search Tree</strong>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/upload.js' %}"></script>
+{% endblock %}
